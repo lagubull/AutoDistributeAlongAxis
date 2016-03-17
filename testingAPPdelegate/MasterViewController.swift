@@ -10,60 +10,110 @@ import UIKit
 import PureLayout
 
 class MasterViewController: UIViewController {
-
-    lazy var aboveView: UIView = {
+    
+    var selectorViewRightConstraint: NSLayoutConstraint?
+    
+    var selectorViewLeftConstraint: NSLayoutConstraint?
+    
+    lazy var rightView: UIView = {
         
-        let _aboveView = UIView.newAutoLayoutView()
+        let _rightView = UIView.newAutoLayoutView()
         
-        _aboveView.backgroundColor = .yellowColor()
+        _rightView.backgroundColor = .yellowColor()
         
-        return _aboveView
+        return _rightView
     }()
     
-    var belowView: UIView = {
+    lazy var leftView: UIView = {
         
-        let _belowView = UIView.newAutoLayoutView()
+        let _leftView = UIView.newAutoLayoutView()
         
-        _belowView.backgroundColor = .blueColor()
+        _leftView.backgroundColor = .blueColor()
         
-        return _belowView
+        return _leftView
     }()
     
-    var views: NSArray?
+    lazy var selectorView: UIView = {
+        
+        let _selectorView = UIView.newAutoLayoutView()
+        
+        _selectorView.backgroundColor = .redColor()
+        
+        return _selectorView
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.view.backgroundColor = .redColor()
-        
-        view.addSubview(aboveView)
-        view.addSubview(belowView)
-        
-         views = [aboveView, belowView]
-        }
+        view.addSubview(rightView)
+        view.addSubview(leftView)
+        view.addSubview(selectorView)
+
+        super.viewDidLoad()
+    }
     
     override func viewDidAppear(animated: Bool) {
         
         super.viewDidAppear(animated)
         
         self.updateViewConstraints()
+        
+        let delay = 1.5 * Double(NSEC_PER_SEC)
+        let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
+       
+        dispatch_after(time, dispatch_get_main_queue()) {
+            
+            UIView.animateWithDuration(1.5, animations: { () -> Void in
+                
+                self.swapConstraint()
+                self.view.layoutIfNeeded()
+            })
+        }
     }
     
     override func updateViewConstraints() {
         
         super.updateViewConstraints()
         
-        aboveView.autoPinEdgeToSuperviewEdge(.Top)
-        aboveView.autoPinEdgeToSuperviewEdge(.Left)
-        aboveView.autoPinEdgeToSuperviewEdge(.Right)
+        rightView.autoPinEdgeToSuperviewEdge(.Top)
+        
+        rightView.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 5.0)
+        
+        rightView.autoPinEdgeToSuperviewEdge(.Right)
+        
+        /*--------------*/
+        
+        leftView.autoPinEdge(.Right, toEdge: .Left, ofView: rightView)
+        
+        leftView.autoPinEdgeToSuperviewEdge(.Top)
+        
+        leftView.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 5.0)
+        
+        leftView.autoPinEdgeToSuperviewEdge(.Left)
+        
+        leftView.autoMatchDimension(.Width, toDimension: .Width, ofView: rightView)
+        
+        /*--------------*/
+        
+        selectorView.autoPinEdgeToSuperviewEdge(.Bottom)
+        
+        if let _ = self.selectorViewRightConstraint {
+        
+        }
+        else {
+        
+            selectorViewLeftConstraint = selectorView.autoPinEdge(.Left, toEdge: .Left, ofView: rightView)
+            selectorViewRightConstraint = selectorView.autoPinEdge(.Right, toEdge: .Right, ofView: rightView)
+        }
+        
+        selectorView.autoSetDimension(.Height, toSize: 5.0)
+    }
+    
+    func swapConstraint() {
+        
+        selectorViewLeftConstraint?.constant = selectorViewLeftConstraint!.constant - leftView.frame.size.width
+        selectorViewRightConstraint?.constant = selectorViewRightConstraint!.constant - leftView.frame.size.width
 
-        belowView.autoPinEdge(.Top, toEdge: .Bottom, ofView: aboveView)
-        
-        belowView.autoPinEdgeToSuperviewEdge(.Bottom)
-        belowView.autoPinEdgeToSuperviewEdge(.Left)
-        belowView.autoPinEdgeToSuperviewEdge(.Right)
-        
-        views!.autoDistributeViewsAlongAxis(.Vertical,alignedTo:ALAttribute.Right, withFixedSpacing:0.0)
     }
 }
 

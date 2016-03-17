@@ -1,0 +1,3 @@
+[submodule "DistributeViewsEvenly-Swift"]
+	path = DistributeViewsEvenly-Swift
+	url = https://github.com/chrisben/DistributeViewsEvenly-Swift.git
